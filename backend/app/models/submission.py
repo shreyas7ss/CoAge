@@ -80,6 +80,7 @@ class Evaluation(Base, TimestampMixin):
     reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     faculty_comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+    feedback_draft: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 
 class CriterionScore(Base, TimestampMixin):

@@ -58,12 +58,14 @@ Work **one phase at a time**. Before each phase: post a plan. After: run tests, 
 **Demo steps:** Approve an evaluation and verify its final criterion marks create topic mastery events; inspect the course heatmap, topic weakness, score distribution, question item analysis, student profiles, and AI quality; add answered follow-up checks in Phase 6 and verify understanding-gap trends.
 
 ## Phase 5: Feedback + Monitoring graphs
-- [ ] Feedback graph (`04` §4): personalized, cites student's own answers, practice suggestions, validation; release flow
-- [ ] Monitoring graph (`04` §6) with deterministic nodes; alert dedupe; scheduler (APScheduler) + manual trigger endpoint
-- [ ] Alerts endpoints + resolve
-- [ ] Tests: each monitoring node without an LLM; dedupe; feedback never leaks authenticity/reference data
+- [x] Feedback graph (`04` §4): personalized, cites student's own answers, practice suggestions, validation; release flow
+- [x] Monitoring graph (`04` §6) with deterministic nodes; alert dedupe; scheduler (APScheduler) + manual trigger endpoint
+- [x] Alerts endpoints + resolve
+- [x] Tests: each monitoring node without an LLM; dedupe; feedback never leaks authenticity/reference data
 
 **Accept:** seeded "missing submissions" and "weak topic" scenarios produce the expected alerts.
+
+**Demo steps:** Approve and release an evaluation to generate guarded student feedback; run course monitoring manually or let the six-hour scheduler run; inspect missing, low-submission, overdue-review, at-risk, and weak-topic alerts; resolve an alert and rerun monitoring to confirm it is deduplicated.
 
 ## Phase 6: Co-learning memory + Authenticity module
 - [ ] `correction_memory` writes at finalize; retrieval of top-k few-shots in `score_criterion` (pgvector)

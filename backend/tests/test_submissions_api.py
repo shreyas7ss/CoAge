@@ -11,7 +11,7 @@ from app.models.assignment import Assignment, Question
 from app.models.course import Course, Enrollment, Topic
 from app.models.enums import EvalStatus, SubmissionStatus, UserRole
 from app.models.submission import Evaluation, Submission
-from app.schemas.llm import CriterionResult, FeedbackDraft
+from app.schemas.llm import CriterionResult, FeedbackDraft, FeedbackGeneration
 from app.services import setup_service
 from tests.fake_llm import FakeLLM, FakeLLMFactory
 from tests.helpers import auth_header, make_user
@@ -96,6 +96,11 @@ def _configure_fake_runtime() -> None:
         {
             CriterionResult: lambda: CriterionResult(awarded=3.0, evidence="quote", confidence=0.9),
             FeedbackDraft: lambda: FeedbackDraft(rationale="r", feedback="f"),
+            FeedbackGeneration: lambda: FeedbackGeneration(
+                feedback="You explained the main idea clearly.",
+                misconceptions=[],
+                suggested_practice=["Explain hashing", "Compare collision strategies"],
+            ),
         }
     )
     runner.configure_runtime(checkpointer=InMemorySaver(), llm_factory=FakeLLMFactory(llm))
@@ -134,7 +139,11 @@ def test_full_submission_flow(client, db_session) -> None:
 
     decision = client.post(
         f"/api/v1/evaluations/{evaluation_id}/decision",
-        json={"approve": True, "final_scores": {}},
+        json={
+            "approve": True,
+            "final_scores": {},
+            "feedback": "Good explanation. Practice comparing chaining and probing.",
+        },
         headers=faculty_headers,
     )
     assert decision.status_code == 200
@@ -161,6 +170,11 @@ def test_full_submission_flow(client, db_session) -> None:
 
     release = client.post(f"/api/v1/evaluations/{evaluation_id}/release", headers=faculty_headers)
     assert release.status_code == 200
+    feedback = client.get(f"/api/v1/submissions/{submission_id}/feedback", headers=student_headers)
+    assert feedback.status_code == 200
+    assert feedback.json()["text"] == "Good explanation. Practice comparing chaining and probing."
+    assert "authenticity" not in feedback.text.lower()
+    assert "suggested_practice" in feedback.json()
 
     result = client.get(f"/api/v1/submissions/{submission_id}/result", headers=student_headers)
     assert result.status_code == 200

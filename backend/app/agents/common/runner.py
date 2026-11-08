@@ -38,6 +38,14 @@ def _build_graph(graph_name: str) -> Any:
             graphs[graph_name] = build_evaluation_graph(
                 checkpointer=checkpointer, llm_factory=llm_factory
             )
+        elif graph_name == "feedback":
+            from app.agents.feedback.graph import build_feedback_graph
+
+            graphs[graph_name] = build_feedback_graph(llm_factory=llm_factory)
+        elif graph_name == "monitoring":
+            from app.agents.monitoring.graph import build_monitoring_graph
+
+            graphs[graph_name] = build_monitoring_graph(llm_factory=llm_factory)
         else:
             raise ValueError(f"unknown graph: {graph_name}")
     return graphs[graph_name]

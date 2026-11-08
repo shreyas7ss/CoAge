@@ -27,6 +27,17 @@ class SubmissionResultRead(BaseModel):
     released_at: datetime | None = None
 
 
+class FeedbackRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    submission_id: uuid.UUID
+    text: str
+    misconceptions: list[str]
+    suggested_practice: list[str]
+    released_at: datetime | None = None
+
+
 class CriterionScoreRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

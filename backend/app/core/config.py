@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     weak_topic_threshold: float = 0.5
     watch_threshold: float = 0.6
 
+    # Monitoring scheduler
+    monitoring_scheduler_enabled: bool = True
+    monitoring_interval_hours: int = 6
+
     # Storage
     storage_dir: str = "./storage"
 

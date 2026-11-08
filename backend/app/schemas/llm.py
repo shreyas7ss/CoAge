@@ -37,3 +37,15 @@ class FeedbackDraft(BaseModel):
 
     rationale: str = ""
     feedback: str = ""
+
+
+class FeedbackGeneration(BaseModel):
+    """Personalized released feedback; contains no marks or authenticity verdicts."""
+
+    feedback: str
+    misconceptions: list[str] = Field(default_factory=list)
+    suggested_practice: list[str] = Field(default_factory=list, min_length=2, max_length=3)
+
+
+class MonitoringDigest(BaseModel):
+    digest: str = ""

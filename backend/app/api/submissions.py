@@ -23,6 +23,7 @@ from app.core.deps import (
 )
 from app.db.session import get_db
 from app.models.assignment import Assignment, Question
+from app.models.communication import Feedback
 from app.models.enums import EvalStatus, SubmissionStatus
 from app.models.submission import CriterionScore, Evaluation, Submission, SubmissionAnswer
 from app.models.user import User
@@ -31,10 +32,12 @@ from app.schemas.submission import (
     EvaluationDecision,
     EvaluationDetail,
     EvaluationRead,
+    FeedbackRead,
     SubmissionRead,
     SubmissionResultRead,
 )
 from app.services import evaluation_service
+from app.services.feedback_service import generate_and_release_feedback
 from app.services.parsing import (
     extract_text_from_docx,
     extract_text_from_pdf,
@@ -245,6 +248,8 @@ def evaluation_decision(
     _require_evaluation_faculty(db, evaluation, faculty)
     if payload.comment:
         evaluation.faculty_comment = payload.comment
+    if payload.feedback is not None:
+        evaluation.feedback_draft = payload.feedback
     decision = {
         "approve": payload.approve,
         "final_scores": payload.final_scores or {},
@@ -267,10 +272,37 @@ def release_evaluation(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT, detail="Only approved evaluations can be released"
         )
-    evaluation.released_at = datetime.now(UTC)
+    submission = db.get(Submission, evaluation.submission_id)
+    if submission is None:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    try:
+        generate_and_release_feedback(db, evaluation, submission)
+    except ValueError as err:
+        raise HTTPException(status_code=422, detail=str(err)) from err
     db.commit()
     db.refresh(evaluation)
     return evaluation
+
+
+@router.get("/submissions/{submission_id}/feedback", response_model=FeedbackRead)
+def get_released_feedback(
+    submission_id: uuid.UUID,
+    student: User = Depends(require_student),
+    db: Session = Depends(get_db),
+) -> Feedback:
+    submission = db.get(Submission, submission_id)
+    if submission is None or submission.student_id != student.id:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    evaluation = (
+        db.query(Evaluation)
+        .filter_by(submission_id=submission.id)
+        .order_by(Evaluation.created_at.desc())
+        .first()
+    )
+    feedback = db.query(Feedback).filter_by(submission_id=submission.id).first()
+    if evaluation is None or evaluation.released_at is None or feedback is None:
+        raise HTTPException(status_code=403, detail="Feedback not released")
+    return feedback
 
 
 @router.get("/submissions/{submission_id}/result", response_model=SubmissionResultRead)
