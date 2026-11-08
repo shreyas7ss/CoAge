@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, DateTime, ForeignKey, Integer, Numeric, Uuid
+from sqlalchemy import JSON, DateTime, ForeignKey, Integer, Numeric, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin
@@ -50,3 +50,6 @@ class FollowupCheck(Base, TimestampMixin):
     issued_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     answered_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     time_limit_sec: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    thread_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    retake_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    attempt_history: Mapped[list] = mapped_column(JSON, nullable=False, default=list)

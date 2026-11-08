@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 
-from app.api import alerts, analytics, assignments, auth, courses, submissions
+from app.api import alerts, analytics, assignments, auth, authenticity, courses, submissions
 from app.api.health import router as health_router
 from app.core.config import settings
 from app.db.session import SessionLocal
@@ -65,6 +65,7 @@ app.include_router(assignments.router, prefix=settings.api_v1_prefix)
 app.include_router(submissions.router, prefix=settings.api_v1_prefix)
 app.include_router(analytics.router, prefix=settings.api_v1_prefix)
 app.include_router(alerts.router, prefix=settings.api_v1_prefix)
+app.include_router(authenticity.router, prefix=settings.api_v1_prefix)
 
 
 @app.get("/", include_in_schema=False)

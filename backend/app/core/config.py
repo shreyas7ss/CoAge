@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     monitoring_scheduler_enabled: bool = True
     monitoring_interval_hours: int = 6
 
+    # Authenticity and memory
+    authenticity_similarity_threshold: float = 0.9
+    authenticity_style_drift_threshold: float = 2.0
+    followup_time_limit_sec: int = 420
+
     # Storage
     storage_dir: str = "./storage"
 

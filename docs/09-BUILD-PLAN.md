@@ -68,10 +68,10 @@ Work **one phase at a time**. Before each phase: post a plan. After: run tests, 
 **Accept:** seeded "missing submissions" and "weak topic" scenarios produce the expected alerts.
 
 ## Phase 6: Co-learning memory + Authenticity module
-- [ ] `correction_memory` writes at finalize; retrieval of top-k few-shots in `score_criterion` (pgvector)
-- [ ] Authenticity branch (`06-AUTHENTICITY.md`): S2 baseline drift, S4 similarity, S5 alignment, S1 follow-up questions + interrupt + scoring; optional S3 process events; concern-level function
-- [ ] Authenticity endpoints (faculty only) + follow-up endpoints (student)
-- [ ] Tests: drift on synthetic authors, similarity clusters, table-driven concern levels, follow-up pass caps concern at medium, no authenticity data in student responses
+- [x] `correction_memory` writes at finalize; retrieval of top-k few-shots in `score_criterion` (pgvector)
+- [x] Authenticity signals: S2 baseline drift, S4 similarity, S5 alignment, S1 follow-up questions + interrupt + scoring; optional S3 process events; concern-level function
+- [x] Authenticity endpoints (faculty only) + follow-up endpoints (student)
+- [x] Tests: drift on synthetic authors, similarity clusters, table-driven concern levels, follow-up pass caps concern at medium, no authenticity data in student responses
 
 **Accept:** demo shows a flagged submission with an evidence list; marks unchanged by it.
 

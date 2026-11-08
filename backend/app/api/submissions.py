@@ -15,6 +15,7 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 
+from app.agents.authenticity.signals import hashing_embedding
 from app.core.deps import (
     require_course_faculty,
     require_course_member,
@@ -160,6 +161,7 @@ async def create_submission(
                 submission_id=submission.id,
                 question_id=question.id,
                 answer_text=answers.get(str(question.id), ""),
+                embedding=hashing_embedding(answers.get(str(question.id), "")),
             )
         )
     db.commit()
@@ -253,6 +255,7 @@ def evaluation_decision(
     decision = {
         "approve": payload.approve,
         "final_scores": payload.final_scores or {},
+        "criterion_notes": payload.criterion_notes or {},
         "feedback": payload.feedback,
         "comment": payload.comment,
     }

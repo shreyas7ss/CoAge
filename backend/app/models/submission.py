@@ -3,7 +3,9 @@
 import uuid
 from datetime import datetime
 
+from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
+    JSON,
     Boolean,
     DateTime,
     Enum,
@@ -17,6 +19,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
+from app.agents.authenticity.signals import EMBEDDING_DIMENSIONS
 from app.db.base import Base, TimestampMixin
 from app.models.enums import EvalStatus, SubmissionStatus
 
@@ -57,7 +60,9 @@ class SubmissionAnswer(Base, TimestampMixin):
         ForeignKey("questions.id"), nullable=False, index=True
     )
     answer_text: Mapped[str] = mapped_column(Text, nullable=False)
-    # NOTE: `embedding vector(1024)` is added in the authenticity phase (pgvector).
+    embedding: Mapped[list[float] | None] = mapped_column(
+        Vector(EMBEDDING_DIMENSIONS).with_variant(JSON(), "sqlite"), nullable=True
+    )
 
 
 class Evaluation(Base, TimestampMixin):

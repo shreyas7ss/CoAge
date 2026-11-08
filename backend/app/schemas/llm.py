@@ -49,3 +49,13 @@ class FeedbackGeneration(BaseModel):
 
 class MonitoringDigest(BaseModel):
     digest: str = ""
+
+
+class FollowupQuestionSet(BaseModel):
+    questions: list[str] = Field(min_length=2, max_length=3)
+
+
+class FollowupScore(BaseModel):
+    score: float = Field(ge=0, le=1)
+    reasoning: str
+    evidence: list[str] = Field(default_factory=list)

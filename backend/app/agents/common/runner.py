@@ -46,6 +46,12 @@ def _build_graph(graph_name: str) -> Any:
             from app.agents.monitoring.graph import build_monitoring_graph
 
             graphs[graph_name] = build_monitoring_graph(llm_factory=llm_factory)
+        elif graph_name == "followup":
+            from app.agents.authenticity.followup_graph import build_followup_graph
+
+            graphs[graph_name] = build_followup_graph(
+                checkpointer=checkpointer, llm_factory=llm_factory
+            )
         else:
             raise ValueError(f"unknown graph: {graph_name}")
     return graphs[graph_name]

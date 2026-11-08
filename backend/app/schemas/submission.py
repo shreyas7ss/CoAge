@@ -77,5 +77,6 @@ class EvaluationDetail(EvaluationRead):
 class EvaluationDecision(BaseModel):
     approve: bool = True
     final_scores: dict[str, float] | None = None
+    criterion_notes: dict[str, str] | None = None
     feedback: str | None = None
     comment: str | None = None

@@ -10,8 +10,11 @@ from app.agents.common.prompts import load_prompt
 from app.analytics.service import write_mastery_events
 from app.core.config import settings
 from app.models.assignment import Assignment, GradingPackage, Question, RubricCriterion
+from app.models.authenticity import AuthenticityReport
 from app.models.enums import EvalStatus, SubmissionStatus
 from app.models.submission import CriterionScore, Evaluation, Submission, SubmissionAnswer
+from app.services.authenticity_service import save_report, update_baseline_for_submission
+from app.services.correction_memory_service import retrieve_corrections, write_correction_memories
 
 
 def build_input_state(db: Session, submission: Submission, assignment: Assignment) -> dict:
@@ -52,6 +55,15 @@ def build_input_state(db: Session, submission: Submission, assignment: Assignmen
                 "topic_id": str(rc.topic_id) if rc.topic_id else None,
             }
         )
+    question_types = {str(q.id): q.qtype.value for q in questions}
+    for q_id, criterion_list in criteria_by_qid.items():
+        for criterion in criterion_list:
+            criterion["few_shots"] = retrieve_corrections(
+                db,
+                criterion["description"],
+                question_types.get(q_id, "short_answer"),
+                answers.get(q_id, ""),
+            )
 
     late_penalty = float(assignment.late_penalty_pct or 0) if submission.is_late else 0.0
     return {
@@ -87,6 +99,12 @@ def run_evaluation(db: Session, submission: Submission) -> dict:
         return {"status": "error", "detail": "no approved grading package"}
 
     state = build_input_state(db, submission, assignment)
+    report = save_report(db, submission, assignment)
+    state["authenticity"] = {
+        "concern_level": report.concern_level,
+        "signals": report.signals,
+        "caveats": report.caveats,
+    }
     evaluation = Evaluation(
         submission_id=submission.id,
         package_version=assignment.active_package_version,
@@ -179,5 +197,20 @@ def _finalize_finished(
         key = str(score.criterion_id) if score.criterion_id else None
         if key in final_by_criterion:
             score.final_awarded = final_by_criterion[key]
+    for item in state.get("final_criterion_scores", []):
+        criterion_id = item.get("criterion_id")
+        note = item.get("faculty_note")
+        if criterion_id and note:
+            score_row = (
+                db.query(CriterionScore)
+                .filter_by(evaluation_id=evaluation.id, criterion_id=uuid.UUID(criterion_id))
+                .first()
+            )
+            if score_row is not None:
+                score_row.faculty_note = note
     if approved:
         write_mastery_events(db, submission, evaluation)
+        write_correction_memories(db, evaluation, submission)
+        report = db.query(AuthenticityReport).filter_by(submission_id=submission.id).first()
+        if report is not None:
+            update_baseline_for_submission(db, submission, report)

@@ -43,6 +43,7 @@ class EvalState(TypedDict, total=False):
     overall_confidence: float
     flags: dict
     injection_flags: list[dict]
+    authenticity: dict
     feedback_draft: dict
     faculty_decision: dict | None
     final_criterion_scores: list[dict]
@@ -64,6 +65,7 @@ def _render_score_prompt(
         .replace("[[CRITERION]]", criterion.get("description", ""))
         .replace("[[MAX_MARKS]]", str(criterion.get("marks", "")))
         .replace("[[MISCONCEPTIONS]]", json.dumps(pkg.get("common_misconceptions", [])))
+        .replace("[[FEW_SHOTS]]", json.dumps(criterion.get("few_shots", [])))
         .replace("[[ANSWER]]", wrap_untrusted(answer))
     )
 
@@ -225,6 +227,7 @@ def build_evaluation_graph(checkpointer: Any = None, llm_factory: Any = None):
                 "overall_confidence": state.get("overall_confidence"),
                 "flags": state.get("flags", {}),
                 "injection_flags": state.get("injection_flags", []),
+                "authenticity": state.get("authenticity"),
             }
         )
         return {"faculty_decision": decision}
@@ -233,6 +236,7 @@ def build_evaluation_graph(checkpointer: Any = None, llm_factory: Any = None):
         decision = state.get("faculty_decision") or {}
         approve = bool(decision.get("approve", True))
         final_scores = decision.get("final_scores") or {}
+        criterion_notes = decision.get("criterion_notes") or {}
         entries: list[dict] = []
         total = 0.0
         for score in state.get("criterion_scores", []):
@@ -240,7 +244,9 @@ def build_evaluation_graph(checkpointer: Any = None, llm_factory: Any = None):
             final = float(final_scores.get(key, score.get("ai_awarded", 0.0)))
             if not 0 <= final <= float(score.get("max_marks", 0.0)):
                 raise ValueError(f"final score for {key} must be within [0, max_marks]")
-            entries.append({**score, "final_awarded": final})
+            entries.append(
+                {**score, "final_awarded": final, "faculty_note": criterion_notes.get(key)}
+            )
             total += final
         penalty = float(state.get("late_penalty_pct") or 0.0)
         if not 0 <= penalty <= 100:

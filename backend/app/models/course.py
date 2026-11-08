@@ -2,7 +2,7 @@
 
 import uuid
 
-from sqlalchemy import ForeignKey, Numeric, String, UniqueConstraint, Uuid
+from sqlalchemy import Boolean, ForeignKey, Numeric, String, UniqueConstraint, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin
@@ -18,6 +18,7 @@ class Course(Base, TimestampMixin):
     code: Mapped[str] = mapped_column(String(64), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     term: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    process_logging_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
 
 class Enrollment(Base, TimestampMixin):
