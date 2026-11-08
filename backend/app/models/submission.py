@@ -37,7 +37,8 @@ class Submission(Base, TimestampMixin):
     submitted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     is_late: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     status: Mapped[SubmissionStatus] = mapped_column(
-        Enum(SubmissionStatus, native_enum=False, length=24), nullable=False,
+        Enum(SubmissionStatus, native_enum=False, length=24),
+        nullable=False,
         default=SubmissionStatus.not_submitted,
     )
     file_uri: Mapped[str | None] = mapped_column(String(512), nullable=True)

@@ -47,9 +47,7 @@ def test_login_returns_token_and_me(client, db_session) -> None:
 
 def test_login_wrong_password(client, db_session) -> None:
     make_user(db_session, role=UserRole.student, email="s1@example.com")
-    resp = client.post(
-        "/api/v1/auth/login", json={"email": "s1@example.com", "password": "bad"}
-    )
+    resp = client.post("/api/v1/auth/login", json={"email": "s1@example.com", "password": "bad"})
     assert resp.status_code == 401
 
 

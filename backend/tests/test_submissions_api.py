@@ -6,6 +6,7 @@ from datetime import UTC, datetime, timedelta
 from langgraph.checkpoint.memory import InMemorySaver
 
 from app.agents.common import runner
+from app.models.analytics import TopicMastery, TopicMasteryEvent
 from app.models.assignment import Assignment, Question
 from app.models.course import Course, Enrollment, Topic
 from app.models.enums import EvalStatus, SubmissionStatus, UserRole
@@ -102,7 +103,7 @@ def _configure_fake_runtime() -> None:
 
 def test_full_submission_flow(client, db_session) -> None:
     faculty = make_user(db_session, role=UserRole.faculty)
-    course, _, assignment, _ = _published_assignment_with_package(db_session, faculty)
+    course, topic, assignment, _ = _published_assignment_with_package(db_session, faculty)
     student = make_user(db_session, role=UserRole.student)
     db_session.add(Enrollment(course_id=course.id, student_id=student.id))
     db_session.commit()
@@ -138,6 +139,20 @@ def test_full_submission_flow(client, db_session) -> None:
     )
     assert decision.status_code == 200
     assert decision.json()["evaluation_status"] == "approved"
+    submission = db_session.get(Submission, submission_id)
+    mastery_event = (
+        db_session.query(TopicMasteryEvent)
+        .filter_by(student_id=submission.student_id, topic_id=topic.id)
+        .one()
+    )
+    assert float(mastery_event.score) == 0.625
+    assert (
+        db_session.query(TopicMastery)
+        .filter_by(student_id=mastery_event.student_id, topic_id=mastery_event.topic_id)
+        .one()
+        .n_events
+        == 1
+    )
 
     my_sub = client.get(
         f"/api/v1/assignments/{assignment.id}/my-submission", headers=student_headers

@@ -53,8 +53,9 @@ def build_input_state(
 def start_setup(db: Session, assignment: Assignment, *, package_draft: dict | None = None) -> dict:
     """Run the setup graph until it interrupts (faculty review)."""
     thread_id = f"setup-{assignment.id}"
-    state = build_input_state(db, assignment, skip_draft=package_draft is not None,
-                              package_draft=package_draft)
+    state = build_input_state(
+        db, assignment, skip_draft=package_draft is not None, package_draft=package_draft
+    )
     result = runner.start("setup", thread_id, state)
     assignment.setup_thread_id = thread_id
     if result["status"] == "interrupted":

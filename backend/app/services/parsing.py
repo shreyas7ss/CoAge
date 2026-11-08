@@ -37,9 +37,7 @@ def parse_submission_answers(text: str, questions: list[dict]) -> dict[str, str]
         answers[questions[0]["q_id"]] = text.strip()
         return answers
 
-    marker_re = re.compile(
-        r"(?:^|\n)\s*(?:Q(?:uestion)?\s*(\d+)[.:)]|\b(\d+)\s*[.)]\s)", re.I
-    )
+    marker_re = re.compile(r"(?:^|\n)\s*(?:Q(?:uestion)?\s*(\d+)[.:)]|\b(\d+)\s*[.)]\s)", re.I)
     matches = list(marker_re.finditer(text))
     if not matches:
         answers[questions[0]["q_id"]] = text.strip()

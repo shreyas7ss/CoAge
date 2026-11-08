@@ -131,23 +131,19 @@ def bulk_enroll(
     found: list[tuple[User, str]] = []
     not_found: list[str] = []
 
-    for email in (payload.emails or []):
+    for email in payload.emails or []:
         normalized = email.lower()
         student = (
-            db.query(User)
-            .filter(User.email == normalized, User.role == UserRole.student)
-            .first()
+            db.query(User).filter(User.email == normalized, User.role == UserRole.student).first()
         )
         if student is None:
             not_found.append(normalized)
         else:
             found.append((student, normalized))
 
-    for roll_no in (payload.roll_nos or []):
+    for roll_no in payload.roll_nos or []:
         student = (
-            db.query(User)
-            .filter(User.roll_no == roll_no, User.role == UserRole.student)
-            .first()
+            db.query(User).filter(User.roll_no == roll_no, User.role == UserRole.student).first()
         )
         if student is None:
             not_found.append(roll_no)
@@ -155,8 +151,7 @@ def bulk_enroll(
             found.append((student, roll_no))
 
     existing_ids = {
-        e.student_id
-        for e in db.query(Enrollment).filter(Enrollment.course_id == course_id).all()
+        e.student_id for e in db.query(Enrollment).filter(Enrollment.course_id == course_id).all()
     }
     enrolled: list[str] = []
     for student, label in found:

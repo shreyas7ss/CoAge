@@ -48,12 +48,14 @@ Work **one phase at a time**. Before each phase: post a plan. After: run tests, 
 **Demo steps:** Upload a text, PDF, or DOCX answer as an enrolled student; confirm the response is accepted and the background evaluation appears in the faculty review queue; inspect criterion/topic scores and injection flags; approve or edit scores; release the result and fetch it as that student.
 
 ## Phase 4: Analytics
-- [ ] `app/analytics/` pure functions per `05-ANALYTICS.md` (topic score, mastery EMA, subject %, trend, flags, class metrics, item analysis, agreement metrics)
-- [ ] `topic_mastery_events` written at finalize; `topic_mastery` roll-up service
-- [ ] Analytics endpoints (heatmap, topics, distribution, questions, students, ai-quality)
-- [ ] Unit tests reproducing the worked examples in `10-TESTING-EVAL.md`
+- [x] `app/analytics/` pure functions per `05-ANALYTICS.md` (topic score, mastery EMA, subject %, trend, flags, class metrics, item analysis, agreement metrics)
+- [x] `topic_mastery_events` written at finalize; `topic_mastery` roll-up service
+- [x] Analytics endpoints (heatmap, topics, distribution, questions, students, ai-quality, understanding gap)
+- [x] Unit tests reproducing the worked examples in `10-TESTING-EVAL.md`
 
 **Accept:** worked examples pass exactly; endpoints return data on seeded DB.
+
+**Demo steps:** Approve an evaluation and verify its final criterion marks create topic mastery events; inspect the course heatmap, topic weakness, score distribution, question item analysis, student profiles, and AI quality; add answered follow-up checks in Phase 6 and verify understanding-gap trends.
 
 ## Phase 5: Feedback + Monitoring graphs
 - [ ] Feedback graph (`04` §4): personalized, cites student's own answers, practice suggestions, validation; release flow

@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.agents.common import runner
 from app.agents.common.prompts import load_prompt
+from app.analytics.service import write_mastery_events
 from app.core.config import settings
 from app.models.assignment import Assignment, GradingPackage, Question, RubricCriterion
 from app.models.enums import EvalStatus, SubmissionStatus
@@ -178,3 +179,5 @@ def _finalize_finished(
         key = str(score.criterion_id) if score.criterion_id else None
         if key in final_by_criterion:
             score.final_awarded = final_by_criterion[key]
+    if approved:
+        write_mastery_events(db, submission, evaluation)

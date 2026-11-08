@@ -6,9 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     # App
     api_v1_prefix: str = "/api/v1"
@@ -28,6 +26,11 @@ class Settings(BaseSettings):
     self_consistency_runs: int = 2
     confidence_review_threshold: float = 0.75
     auto_approve_enabled: bool = False
+
+    # Analytics thresholds
+    mastery_ema_alpha: float = 0.4
+    weak_topic_threshold: float = 0.5
+    watch_threshold: float = 0.6
 
     # Storage
     storage_dir: str = "./storage"

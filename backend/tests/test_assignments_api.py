@@ -95,12 +95,18 @@ def test_student_sees_only_published_assignments(client, db_session) -> None:
     db_session.add_all(
         [
             Assignment(
-                course_id=course.id, title="Draft", deadline=datetime.now(UTC) + timedelta(days=1),
-                max_marks=10, status="draft",
+                course_id=course.id,
+                title="Draft",
+                deadline=datetime.now(UTC) + timedelta(days=1),
+                max_marks=10,
+                status="draft",
             ),
             Assignment(
-                course_id=course.id, title="Published",
-                deadline=datetime.now(UTC) + timedelta(days=2), max_marks=10, status="published",
+                course_id=course.id,
+                title="Published",
+                deadline=datetime.now(UTC) + timedelta(days=2),
+                max_marks=10,
+                status="published",
             ),
         ]
     )
@@ -185,8 +191,6 @@ def test_package_setup_flow_end_to_end(client, db_session) -> None:
     assert decision.json()["status"] == "finished"
     assert decision.json()["package_version"] == 1
 
-    packages = client.get(
-        f"/api/v1/assignments/{assignment_id}/package", headers=headers
-    ).json()
+    packages = client.get(f"/api/v1/assignments/{assignment_id}/package", headers=headers).json()
     assert [p["version"] for p in packages] == [1]
     assert all(p["status"] == "approved" for p in packages)

@@ -68,9 +68,7 @@ def _package(qid: str, topic_id: str, marks=(6.0, 4.0)) -> DraftedPackage:
                     DraftedCriterion(
                         criterion="Defines a collision", marks=marks[0], topic=topic_id
                     ),
-                    DraftedCriterion(
-                        criterion="Explains chaining", marks=marks[1], topic=topic_id
-                    ),
+                    DraftedCriterion(criterion="Explains chaining", marks=marks[1], topic=topic_id),
                 ],
             )
         ]
@@ -118,13 +116,16 @@ def test_lock_package_twice_creates_v2_and_keeps_v1(db_session) -> None:
         return {"questions": [{"q_id": str(question.id), "rubric": criteria}]}
 
     setup_service.lock_package(
-        db_session, assignment,
-        package_with([{"criterion": "c1", "marks": 10, "topic": str(topic.id)}]), faculty.id,
+        db_session,
+        assignment,
+        package_with([{"criterion": "c1", "marks": 10, "topic": str(topic.id)}]),
+        faculty.id,
     )
     db_session.commit()
 
     setup_service.lock_package(
-        db_session, assignment,
+        db_session,
+        assignment,
         package_with(
             [
                 {"criterion": "c1", "marks": 5, "topic": str(topic.id)},
@@ -160,9 +161,7 @@ def test_full_setup_flow_via_runner(db_session) -> None:
     assert assignment.setup_thread_id == f"setup-{assignment.id}"
 
     draft = (
-        db_session.query(GradingPackage)
-        .filter_by(assignment_id=assignment.id, version=0)
-        .first()
+        db_session.query(GradingPackage).filter_by(assignment_id=assignment.id, version=0).first()
     )
     assert draft is not None and draft.status == "draft"
 
@@ -173,9 +172,7 @@ def test_full_setup_flow_via_runner(db_session) -> None:
     assert result2["status"] == "finished"
     assert assignment.active_package_version == 1
     assert (
-        db_session.query(GradingPackage)
-        .filter_by(assignment_id=assignment.id, version=0)
-        .first()
+        db_session.query(GradingPackage).filter_by(assignment_id=assignment.id, version=0).first()
         is None
     )
     assert db_session.query(RubricCriterion).filter_by(package_version=1).count() == 2

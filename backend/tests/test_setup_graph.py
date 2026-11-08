@@ -66,9 +66,7 @@ def test_approve_finalizes_package() -> None:
     graph, config, result = _run_initial(llm)
     payload = _interrupt_value(result)
 
-    final = graph.invoke(
-        Command(resume={"approved": True, "package": payload["package"]}), config
-    )
+    final = graph.invoke(Command(resume={"approved": True, "package": payload["package"]}), config)
     assert final["status"] == "approved"
     assert final["final_package"]["questions"][0]["q_id"] == "q1"
 
