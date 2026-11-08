@@ -76,10 +76,10 @@ Work **one phase at a time**. Before each phase: post a plan. After: run tests, 
 **Accept:** demo shows a flagged submission with an evidence list; marks unchanged by it.
 
 ## Phase 7: Frontend
-- [ ] Typed API client from OpenAPI; auth + role routing
-- [ ] Student: courses, assignment/submit/status tracker, result, mastery, follow-ups
-- [ ] Faculty: creation wizard, package review, completeness board, review queue + review screen, analytics (heatmap, topics, distribution, question quality), alerts, AI-quality, authenticity panel
-- [ ] Polling states, empty/loading/error states, "low data" handling
+- [x] Typed API client generated from OpenAPI; httpOnly cookie auth + role routing
+- [x] Student: courses, assignment/submit/status tracker, result, mastery, timed follow-ups
+- [x] Faculty: assignment creation and package review, completeness board, review queue + review screen, analytics (heatmap, topics, distribution, question quality), alerts, AI-quality, authenticity panel
+- [x] Polling states, empty/loading/error states, "low data" handling
 
 **Accept:** end-to-end happy path through the UI for both roles on seeded data.
 

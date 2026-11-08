@@ -4,7 +4,7 @@ A dual-role (Student / Faculty) educational platform where LangGraph agents eval
 submissions, compute per-topic and per-subject comprehension percentages, raise alerts,
 and give diagnostic feedback — with faculty approval in the loop.
 
-> **Status:** Phase 0 scaffolding. See `docs/09-BUILD-PLAN.md` for the phased checklist.
+> **Status:** Phases 0–7 implemented. See `docs/09-BUILD-PLAN.md` for the phased checklist.
 
 ## Stack
 
@@ -38,3 +38,9 @@ cd frontend && pnpm install && pnpm dev
 ```
 
 See `docs/09-BUILD-PLAN.md` for per-phase demo steps.
+
+The student and faculty portals use a Next.js server-side session cookie and proxy API
+requests to FastAPI. Set `BACKEND_API_URL` in `frontend/.env.local` when the backend is
+not at `http://localhost:8000/api/v1`. To refresh generated API types after changing
+backend schemas, run `uv run python -m scripts.export_openapi` from `backend/`, then
+`pnpm api:types` from `frontend/`.

@@ -1,0 +1,8 @@
+"use client";
+import { useCallback } from "react";
+import { useParams } from "next/navigation";
+import { api } from "@/lib/api";
+import { Card, DataView, PageHeading, Shell } from "@/components/ui";
+type Questions={questions:{position:number;difficulty:number|null;discrimination:number|null;label?:string;misconceptions:{misconception:string;count:number}[]}[]};
+export default function QuestionAnalytics(){const{assignmentId}=useParams<{assignmentId:string}>();const load=useCallback(()=>api<Questions>(`/assignments/${assignmentId}/analytics/questions`),[assignmentId]);return <Shell role="faculty"><PageHeading eyebrow="Assignment analytics" title="Question quality" description="Item statistics are most useful with enough student responses. Small samples are shown as low data."/><DataView load={load} render={data=>data.questions.length?<Card><div className="overflow-auto"><table className="w-full min-w-[600px] text-left text-sm"><thead className="text-xs text-slate-400"><tr><th className="pb-3">Question</th><th>Difficulty</th><th>Discrimination</th><th>Top misconceptions</th></tr></thead><tbody>{data.questions.map((q,i)=><tr key={i} className="border-t border-slate-100 align-top"><td className="py-3 pr-3 font-medium">Question {q.position}</td><td title="Mean score fraction"><Value value={q.difficulty}/></td><td title="Item discrimination index"><Value value={q.discrimination}/></td><td className="py-3">{q.misconceptions?.length?q.misconceptions.map(m=><p key={m.misconception}>{m.misconception} · {m.count}</p>):"—"}</td></tr>)}</tbody></table></div></Card>:<Card>No question-level grading data yet.</Card>}/></Shell>}
+function Value({value}:{value:number|null}){return <span className="text-slate-600">{value==null?"Low data":value.toFixed(2)}</span>}

@@ -1,22 +1,3 @@
-export default function LoginPage() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-6">
-      <h1 className="text-2xl font-semibold">Sign in</h1>
-      <p className="text-slate-500">Authentication lands in Phase 1.</p>
-      <div className="flex gap-4">
-        <a
-          href="/student"
-          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          Student portal
-        </a>
-        <a
-          href="/faculty"
-          className="rounded bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-900"
-        >
-          Faculty portal
-        </a>
-      </div>
-    </main>
-  );
-}
+import { LoginForm } from "@/components/ui";
+
+export default function LoginPage(){return <main className="grid min-h-screen bg-[#f4f6f3] lg:grid-cols-[1fr_.9fr]"><section className="flex flex-col justify-between bg-[#123d32] p-8 text-white md:p-14"><div className="text-sm font-semibold tracking-wide">CoAge <span className="ml-2 font-normal text-emerald-100">Human-AI Co-Learning</span></div><div className="max-w-xl py-16"><p className="mb-5 text-xs font-semibold uppercase tracking-[.2em] text-emerald-200">Learn with clarity</p><h1 className="text-4xl font-semibold leading-tight md:text-6xl">Understand what you know. See what comes next.</h1><p className="mt-6 max-w-md text-base leading-7 text-emerald-50/80">A thoughtful space for students to learn from feedback and for faculty to guide every important decision.</p></div><p className="text-xs text-emerald-100/60">Your progress, supported by people.</p></section><section className="flex items-center justify-center p-6"><div className="w-full max-w-sm"><p className="text-sm font-semibold uppercase tracking-[.15em] text-emerald-800">Welcome back</p><h2 className="mt-2 text-3xl font-semibold">Sign in to CoAge</h2><p className="mb-8 mt-2 text-sm text-slate-500">Use your course account to continue.</p><LoginForm/></div></section></main>;}

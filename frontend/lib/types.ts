@@ -1,0 +1,12 @@
+export type Role = "student" | "faculty";
+export type User = { id: string; email: string; full_name: string; role: Role };
+import type { components } from "./openapi";
+export type Course = components["schemas"]["CourseRead"];
+export type Assignment = components["schemas"]["AssignmentRead"];
+export type Submission = components["schemas"]["SubmissionRead"];
+export type Followup = components["schemas"]["FollowupRead"];
+export type Evaluation = components["schemas"]["EvaluationRead"];
+export type EvaluationDetail = components["schemas"]["EvaluationDetail"];
+export type CriterionScore = components["schemas"]["CriterionScoreRead"];
+export type AuthenticityReport = components["schemas"]["AuthenticityReportRead"];
+export type ApiError = { detail?: string };

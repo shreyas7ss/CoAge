@@ -1,10 +1,11 @@
-export default function StudentHome() {
-  return (
-    <main className="p-8">
-      <h1 className="text-2xl font-semibold">Student portal</h1>
-      <p className="mt-2 text-slate-500">
-        Placeholder — courses, submissions and mastery arrive in later phases.
-      </p>
-    </main>
-  );
-}
+"use client";
+import Link from "next/link";
+import { useCallback } from "react";
+import { apiPaths } from "@/lib/api";
+import type { Assignment, Course, Submission } from "@/lib/types";
+import { Badge, Card, DataView, PageHeading, Shell } from "@/components/ui";
+
+export default function StudentHome(){const courses=useCallback(()=>apiPaths.courses(),[]);const submissions=useCallback(()=>apiPaths.submissions(),[]);return <Shell role="student"><PageHeading eyebrow="Student workspace" title="Your learning space" description="Keep track of upcoming work, recent submissions and the next steps in your courses."/><div className="grid gap-4 sm:grid-cols-3"><Card><p className="text-sm text-slate-500">Enrolled courses</p><DataView load={courses} render={items=><strong className="mt-2 block text-3xl">{items.length}</strong>}/></Card><Card><p className="text-sm text-slate-500">Submitted work</p><DataView load={submissions} render={items=><strong className="mt-2 block text-3xl">{items.length}</strong>}/></Card><Card><p className="text-sm text-slate-500">Next step</p><Link href="/student/followups" className="mt-2 block text-lg font-semibold text-emerald-900">Check follow-ups →</Link></Card></div><div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_.8fr]"><Card><div className="mb-4 flex items-center justify-between"><h2 className="font-semibold">Your courses</h2><span className="text-xs text-slate-400">Updates automatically</span></div><DataView load={courses} render={items=><CourseList courses={items}/>}/></Card><Card><h2 className="mb-4 font-semibold">Recent submissions</h2><DataView load={submissions} render={items=><SubmissionList submissions={items}/>}/></Card></div></Shell>}
+function CourseList({courses}:{courses:Course[]}){if(!courses.length)return <p className="rounded-xl bg-slate-50 p-5 text-sm text-slate-500">No courses are linked to your account yet.</p>;return <div className="divide-y divide-slate-100">{courses.map(course=><CourseRow key={course.id} course={course}/>)}</div>}
+function CourseRow({course}:{course:Course}){const load=useCallback(()=>apiPaths.assignments(course.id),[course.id]);return <div className="flex flex-wrap items-center justify-between gap-4 py-4 first:pt-1"><div><p className="font-medium">{course.name}</p><p className="mt-1 text-xs text-slate-500">{course.code}{course.term?` · ${course.term}`:""}</p></div><div className="text-right"><Link className="text-xs font-medium text-emerald-800 hover:underline" href={`/student/mastery/${course.id}`}>View mastery →</Link><DataView load={load} render={assignments=><div className="mt-1"><p className="text-sm font-medium">{assignments.length} assignment{assignments.length===1?"":"s"}</p>{assignments.slice(0,2).map((a:Assignment)=><p key={a.id} className="mt-1 text-xs text-slate-500"><Link className="hover:text-emerald-800" href={`/student/assignments/${a.id}`}>{a.title}</Link> · due {new Date(a.deadline).toLocaleDateString()}</p>)}</div>}/></div></div>}
+function SubmissionList({submissions}:{submissions:Submission[]}){if(!submissions.length)return <p className="rounded-xl bg-slate-50 p-5 text-sm text-slate-500">Submitted work will appear here.</p>;return <div className="space-y-3">{submissions.slice().reverse().slice(0,6).map(s=><Link href={`/student/submissions/${s.id}`} key={s.id} className="flex items-center justify-between rounded-xl border border-slate-100 p-3 hover:border-emerald-200"><span><span className="block text-sm font-medium">Submission</span><span className="text-xs text-slate-500">{s.submitted_at?new Date(s.submitted_at).toLocaleString():"Not submitted"}</span></span><Badge tone={s.status==="graded"?"green":"amber"}>{s.status.replaceAll("_"," ")}{s.is_late?" · late":""}</Badge></Link>)}</div>}

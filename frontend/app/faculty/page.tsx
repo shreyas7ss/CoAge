@@ -1,10 +1,10 @@
-export default function FacultyHome() {
-  return (
-    <main className="p-8">
-      <h1 className="text-2xl font-semibold">Faculty portal</h1>
-      <p className="mt-2 text-slate-500">
-        Placeholder — courses, review queue and analytics arrive in later phases.
-      </p>
-    </main>
-  );
-}
+"use client";
+import Link from "next/link";
+import { useCallback } from "react";
+import { api, apiPaths } from "@/lib/api";
+import type { Course, Evaluation } from "@/lib/types";
+import { Badge, Card, DataView, PageHeading, Shell } from "@/components/ui";
+
+export default function FacultyHome(){const courses=useCallback(()=>apiPaths.courses(),[]);return <Shell role="faculty"><PageHeading eyebrow="Faculty workspace" title="Course overview" description="Review learner progress, follow up on outstanding work, and keep grading decisions in your hands."/><div className="mb-7 grid gap-3 sm:grid-cols-3"><Link href="/faculty/review"><Card><p className="text-sm text-slate-500">Review queue</p><p className="mt-2 font-semibold text-emerald-900">Open submissions →</p></Card></Link><Link href="/faculty/analytics"><Card><p className="text-sm text-slate-500">Course insights</p><p className="mt-2 font-semibold text-emerald-900">View analytics →</p></Card></Link><Card><p className="text-sm text-slate-500">Privacy</p><p className="mt-2 text-sm">Authenticity signals stay faculty-only and never alter marks.</p></Card></div><DataView load={courses} render={items=><CourseGrid courses={items}/>}/></Shell>}
+function CourseGrid({courses}:{courses:Course[]}){if(!courses.length)return <Card><h2 className="font-semibold">No courses yet</h2><p className="mt-2 text-sm text-slate-500">Create a course using the API to begin managing assignments and learners.</p></Card>;return <div className="grid gap-5 md:grid-cols-2">{courses.map(c=><CourseCard key={c.id} course={c}/>)}</div>}
+function CourseCard({course}:{course:Course}){const load=useCallback(()=>apiPaths.reviewQueue(course.id),[course.id]);return <Card><div className="flex items-start justify-between"><div><p className="text-xs font-semibold uppercase tracking-wide text-emerald-800">{course.code}</p><h2 className="mt-1 text-xl font-semibold">{course.name}</h2><p className="mt-1 text-sm text-slate-500">{course.term??"Current course"}</p></div><Badge tone="green">Active</Badge></div><div className="mt-5 grid grid-cols-2 gap-3"><Link href={`/faculty/courses/${course.id}`} className="button-primary text-center">Course hub</Link><Link href={`/faculty/courses/${course.id}/analytics`} className="rounded-[.65rem] border border-slate-200 px-4 py-2.5 text-center text-sm font-semibold hover:bg-slate-50">Analytics</Link></div><div className="mt-4 rounded-xl bg-slate-50 p-3"><DataView load={load} render={queue=><p className="text-sm text-slate-600"><b>{queue.length}</b> evaluation{queue.length===1?"":"s"} awaiting review</p>}/></div></Card>}

@@ -10,7 +10,12 @@ from sqlalchemy.orm import Session
 from app.analytics import metrics
 from app.analytics.service import approved_evaluation_rows, score_rows, topic_cell_scores
 from app.core.config import settings
-from app.core.deps import require_course_faculty, require_faculty
+from app.core.deps import (
+    require_course_faculty,
+    require_course_member,
+    require_faculty,
+    require_student,
+)
 from app.db.session import get_db
 from app.models.analytics import FollowupCheck, TopicMastery, TopicMasteryEvent
 from app.models.assignment import Assignment, Question
@@ -20,6 +25,19 @@ from app.models.submission import Evaluation, Submission
 from app.models.user import User
 
 router = APIRouter(tags=["analytics"])
+
+
+@router.get("/me/mastery")
+def student_mastery(
+    course_id: uuid.UUID = Query(...),
+    student: User = Depends(require_student),
+    db: Session = Depends(get_db),
+) -> dict:
+    course = db.get(Course, course_id)
+    if course is None:
+        raise HTTPException(status_code=404, detail="Course not found")
+    require_course_member(db, course.id, student)
+    return _student_analytics(db, course, student.id)
 
 
 def _course(db: Session, course_id: uuid.UUID, faculty: User) -> Course:

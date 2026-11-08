@@ -236,6 +236,11 @@ def get_evaluation(
     scores = db.query(CriterionScore).filter(CriterionScore.evaluation_id == evaluation.id).all()
     detail = EvaluationDetail.model_validate(evaluation)
     detail.criterion_scores = [CriterionScoreRead.model_validate(s) for s in scores]
+    answers = db.query(SubmissionAnswer).filter_by(submission_id=evaluation.submission_id).all()
+    detail.submission_answers = [
+        {"question_id": str(answer.question_id), "answer_text": answer.answer_text}
+        for answer in answers
+    ]
     return detail
 
 

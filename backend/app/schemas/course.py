@@ -19,6 +19,7 @@ class CourseRead(BaseModel):
     code: str
     name: str
     term: str | None = None
+    process_logging_enabled: bool = False
 
 
 class TopicCreate(BaseModel):

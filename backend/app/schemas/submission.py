@@ -72,6 +72,7 @@ class EvaluationRead(BaseModel):
 
 class EvaluationDetail(EvaluationRead):
     criterion_scores: list[CriterionScoreRead] = []
+    submission_answers: list[dict] = []
 
 
 class EvaluationDecision(BaseModel):

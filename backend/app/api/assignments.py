@@ -13,7 +13,9 @@ from app.core.deps import (
 )
 from app.db.session import get_db
 from app.models.assignment import Assignment, GradingPackage, Question
+from app.models.course import Enrollment
 from app.models.enums import UserRole
+from app.models.submission import Submission
 from app.models.user import User
 from app.schemas.assignment import (
     AssignmentCreate,
@@ -118,6 +120,64 @@ def get_assignment(
     if current_user.role == UserRole.student and assignment.status != "published":
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assignment not found")
     return assignment
+
+
+@router.get("/assignments/{assignment_id}/questions", response_model=list[QuestionRead])
+def list_assignment_questions(
+    assignment_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[Question]:
+    assignment = _get_assignment_or_404(db, assignment_id)
+    require_course_member(db, assignment.course_id, current_user)
+    if current_user.role == UserRole.student and assignment.status != "published":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assignment not found")
+    return list(
+        db.query(Question).filter_by(assignment_id=assignment.id).order_by(Question.position).all()
+    )
+
+
+@router.get("/assignments/{assignment_id}/completeness")
+def assignment_completeness(
+    assignment_id: uuid.UUID,
+    faculty: User = Depends(require_faculty),
+    db: Session = Depends(get_db),
+) -> dict:
+    assignment = _get_assignment_or_404(db, assignment_id)
+    require_course_faculty(db, assignment.course_id, faculty)
+    enrolled = (
+        db.query(User)
+        .join(Enrollment, Enrollment.student_id == User.id)
+        .filter(Enrollment.course_id == assignment.course_id)
+        .order_by(User.full_name)
+        .all()
+    )
+    submissions = {
+        row.student_id: row
+        for row in db.query(Submission).filter_by(assignment_id=assignment.id).all()
+    }
+    rows = []
+    for student in enrolled:
+        submission = submissions.get(student.id)
+        state = (
+            "missing"
+            if submission is None or submission.submitted_at is None
+            else "late"
+            if submission.is_late
+            else submission.status.value
+        )
+        rows.append(
+            {
+                "student_id": str(student.id),
+                "student_name": student.full_name,
+                "email": student.email,
+                "status": state,
+                "submitted_at": submission.submitted_at.isoformat()
+                if submission and submission.submitted_at
+                else None,
+            }
+        )
+    return {"assignment_id": str(assignment.id), "students": rows}
 
 
 @router.patch("/assignments/{assignment_id}", response_model=AssignmentRead)
