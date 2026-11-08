@@ -47,6 +47,7 @@ backend/
     prompts/        # .md or .jinja prompt templates, versioned
   tests/
   scripts/seed.py
+  scripts/calibrate.py
 frontend/
 docker-compose.yml
 .env.example
@@ -81,8 +82,9 @@ docker compose up -d db          # Postgres + pgvector
 cd backend && uvicorn app.main:app --reload
 cd backend && alembic upgrade head
 cd backend && pytest -q
-cd backend && python scripts/seed.py
-cd frontend && npm run dev
+cd backend && uv run python -m scripts.seed
+cd backend && uv run python -m scripts.calibrate --label-source synthetic-seed
+cd frontend && pnpm dev
 ```
 
 ## Definition of done (per phase)

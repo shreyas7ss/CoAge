@@ -34,3 +34,6 @@ Thumbs.db
 
 # ---- Local secrets ----
 *.local
+
+# Local run logs
+.run/

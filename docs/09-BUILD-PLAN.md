@@ -84,14 +84,16 @@ Work **one phase at a time**. Before each phase: post a plan. After: run tests, 
 **Accept:** end-to-end happy path through the UI for both roles on seeded data.
 
 ## Phase 8: Seed data, evaluation, polish
-- [ ] `scripts/seed.py`: 1 course, ~10 topics, 3 assignments, 15-20 students with varied synthetic submissions (strong, average, weak, missing, late, near-duplicates, AI-style generic answers)
-- [ ] Calibration script: run the AI on faculty-graded samples, output MAE, agreement, calibration table (`10-TESTING-EVAL.md`)
-- [ ] README: architecture diagram, setup, demo walkthrough, known limitations (esp. authenticity)
-- [ ] `docs/DECISIONS.md` finalized; cleanup, lint, type-check
+- [x] `scripts/seed.py`: 1 course, 10 topics, 3 assignments, 20 students with varied synthetic submissions (strong, average, weak, missing, late, near-duplicates, AI-style generic answers)
+- [x] Calibration script: compare stored or freshly re-scored AI marks to final reviewed marks; output MAE, agreement, confidence table and CSV (`10-TESTING-EVAL.md`)
+- [x] README: architecture diagram, setup, demo walkthrough, known limitations (esp. authenticity)
+- [x] `docs/DECISIONS.md` finalized; cleanup, lint, type-check
 
 **Accept:** a fresh clone → `docker compose up` + seed + demo script works in under 10 minutes.
 
 ---
+
+**Demo steps:** Start Postgres, apply migrations, run `uv run python -m scripts.seed`, then start FastAPI and Next.js. Walk one faculty review and release, one student result and follow-up, the missing/late completeness board, and the near-duplicate authenticity evidence. Run `uv run python -m scripts.calibrate --label-source synthetic-seed` and show the provenance warning with the generated report.
 
 ## Stretch (only if time remains)
 - Code-assignment grading in a sandbox (Docker, no network, CPU/time limits)
