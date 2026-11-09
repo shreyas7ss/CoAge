@@ -9,7 +9,7 @@ from app.models.authenticity import (
     WritingBaseline,
 )
 from app.models.communication import Alert, Feedback
-from app.models.course import Course, Enrollment, Topic
+from app.models.course import Course, Enrollment, StudyMaterial, Topic
 from app.models.submission import CriterionScore, Evaluation, Submission, SubmissionAnswer
 from app.models.user import User
 
@@ -18,6 +18,7 @@ __all__ = [
     "Course",
     "Enrollment",
     "Topic",
+    "StudyMaterial",
     "Assignment",
     "Question",
     "GradingPackage",

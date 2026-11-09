@@ -1,8 +1,9 @@
 """Course, enrollment, and topic models."""
 
 import uuid
+import secrets
 
-from sqlalchemy import Boolean, ForeignKey, Numeric, String, UniqueConstraint, Uuid
+from sqlalchemy import Boolean, ForeignKey, Numeric, String, Text, UniqueConstraint, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, TimestampMixin
@@ -16,6 +17,7 @@ class Course(Base, TimestampMixin):
         ForeignKey("users.id"), nullable=False, index=True
     )
     code: Mapped[str] = mapped_column(String(64), nullable=False)
+    join_code: Mapped[str] = mapped_column(String(12), nullable=False, unique=True, index=True, default=lambda: secrets.token_urlsafe(6)[:8].upper())
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     term: Mapped[str | None] = mapped_column(String(64), nullable=True)
     process_logging_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -41,3 +43,12 @@ class Topic(Base, TimestampMixin):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     parent_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("topics.id"), nullable=True)
     weight: Mapped[float] = mapped_column(Numeric(10, 4), nullable=False, default=1.0)
+
+
+class StudyMaterial(Base, TimestampMixin):
+    __tablename__ = "study_materials"
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
+    course_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("courses.id"), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)

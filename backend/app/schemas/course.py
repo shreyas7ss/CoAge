@@ -17,9 +17,28 @@ class CourseRead(BaseModel):
     id: uuid.UUID
     faculty_id: uuid.UUID
     code: str
+    join_code: str
     name: str
     term: str | None = None
     process_logging_enabled: bool = False
+
+
+class JoinCourseRequest(BaseModel):
+    join_code: str = Field(min_length=4, max_length=12)
+
+
+class StudyMaterialCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=255)
+    content: str = Field(min_length=1, max_length=100000)
+
+
+class StudyMaterialRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    course_id: uuid.UUID
+    title: str
+    content: str
 
 
 class TopicCreate(BaseModel):

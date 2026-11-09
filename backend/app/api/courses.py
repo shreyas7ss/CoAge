@@ -1,6 +1,7 @@
 """Courses, topics, and enrollments router."""
 
 import uuid
+import secrets
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -12,7 +13,7 @@ from app.core.deps import (
     require_faculty,
 )
 from app.db.session import get_db
-from app.models.course import Course, Enrollment, Topic
+from app.models.course import Course, Enrollment, StudyMaterial, Topic
 from app.models.enums import UserRole
 from app.models.user import User
 from app.schemas.course import (
@@ -20,6 +21,9 @@ from app.schemas.course import (
     CourseRead,
     EnrollmentCreate,
     EnrollmentResult,
+    JoinCourseRequest,
+    StudyMaterialCreate,
+    StudyMaterialRead,
     TopicCreate,
     TopicRead,
     TopicUpdate,
@@ -48,11 +52,65 @@ def create_course(
     faculty: User = Depends(require_faculty),
     db: Session = Depends(get_db),
 ) -> Course:
-    course = Course(faculty_id=faculty.id, code=payload.code, name=payload.name, term=payload.term)
+    course = Course(
+        faculty_id=faculty.id,
+        code=payload.code,
+        join_code=secrets.token_urlsafe(6)[:8].upper(),
+        name=payload.name,
+        term=payload.term,
+    )
     db.add(course)
     db.commit()
     db.refresh(course)
     return course
+
+
+@router.post("/courses/join", response_model=CourseRead)
+def join_course(
+    payload: JoinCourseRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Course:
+    if current_user.role != UserRole.student:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Student access required")
+    course = db.query(Course).filter(Course.join_code == payload.join_code.strip().upper()).first()
+    if course is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Classroom code not found")
+    enrollment = db.query(Enrollment).filter_by(course_id=course.id, student_id=current_user.id).first()
+    if enrollment is None:
+        db.add(Enrollment(course_id=course.id, student_id=current_user.id))
+        db.commit()
+    return course
+
+
+@router.get("/courses/{course_id}/materials", response_model=list[StudyMaterialRead])
+def list_materials(
+    course_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> list[StudyMaterial]:
+    require_course_member(db, course_id, current_user)
+    return list(
+        db.query(StudyMaterial)
+        .filter_by(course_id=course_id)
+        .order_by(StudyMaterial.created_at)
+        .all()
+    )
+
+
+@router.post("/courses/{course_id}/materials", response_model=StudyMaterialRead, status_code=status.HTTP_201_CREATED)
+def create_material(
+    course_id: uuid.UUID,
+    payload: StudyMaterialCreate,
+    faculty: User = Depends(require_faculty),
+    db: Session = Depends(get_db),
+) -> StudyMaterial:
+    require_course_faculty(db, course_id, faculty)
+    material = StudyMaterial(course_id=course_id, title=payload.title, content=payload.content)
+    db.add(material)
+    db.commit()
+    db.refresh(material)
+    return material
 
 
 @router.get("/courses/{course_id}/topics", response_model=list[TopicRead])

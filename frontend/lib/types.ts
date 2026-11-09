@@ -1,7 +1,7 @@
 export type Role = "student" | "faculty";
 export type User = { id: string; email: string; full_name: string; role: Role };
 import type { components } from "./openapi";
-export type Course = components["schemas"]["CourseRead"];
+export type Course = components["schemas"]["CourseRead"] & { join_code: string };
 export type Assignment = components["schemas"]["AssignmentRead"];
 export type Submission = components["schemas"]["SubmissionRead"];
 export type Followup = components["schemas"]["FollowupRead"];
